@@ -676,6 +676,10 @@ def add_dynamic_boards_sitl():
     '''add boards based on existence of hwdef.dat in subdirectories for '''
     add_dynamic_boards_from_hwdef_dir(SITLBoard, 'libraries/AP_HAL_SITL/hwdef')
 
+def add_dynamic_boards_infineon():
+    '''add boards based on existence of hwdef.dat in subdirectories for infineon'''
+    add_dynamic_boards_from_hwdef_dir(infineon, 'libraries/AP_HAL_Infineon/hwdef')
+
 def add_dynamic_boards_from_hwdef_dir(base_type, hwdef_dir):
     '''add boards based on existence of hwdef.dat in subdirectory'''
     dirname, dirlist, filenames = next(os.walk(hwdef_dir))
@@ -707,6 +711,7 @@ def get_boards_names():
     add_dynamic_boards_linux()
     add_dynamic_boards_qurt()
     add_dynamic_boards_sitl()
+    add_dynamic_boards_infineon()
 
     return sorted(list(_board_classes.keys()), key=str.lower)
 
@@ -1595,4 +1600,212 @@ class QURTBoard(Board):
     def get_name(self):
         # get name of class
         return self.__class__.__name__
-    
+
+class infineon(Board):
+    abstract = True
+    toolchain = 'arm-none-eabi'
+
+
+    def configure_env(self, cfg, env):
+        if hasattr(self, 'hwdef'):
+            cfg.env.HWDEF = self.hwdef
+        else:
+            env.HWDEF = ['']
+        super(infineon, self).configure_env(cfg, env)
+
+        cfg.load('infineon')
+
+        ASNAME = ['%s-%s' % (self.toolchain,'gcc')]
+        cfg.find_program(ASNAME, var='AS')
+        cfg.env.AS_TGT_F = ['-c', '-o']
+        cfg.env.ASLNK_TGT_F = ['-o']
+        cfg.find_ar()
+        cfg.load('asm')
+        cfg.env.ASM_NAME = 'gas'
+
+
+        env.DEFINES.update(
+            CONFIG_HAL_BOARD = 'HAL_BOARD_INFINEON',
+            HAVE_STD_NULLPTR_T = 0,
+        )
+        env.DEFINES.update(
+            COMPONENT_CAT1 = 0,
+            COMPONENT_CAT1C = 0,
+            COMPONENT_CAT1C4M = 0,
+            COMPONENT_CM7 = 0,
+            COMPONENT_CM7_0 = 0,
+            COMPONENT_CYT4BB7_Dual = 0,
+            COMPONENT_FREERTOS = 0,
+            COMPONENT_FREERTOS_NTZ = 0,
+            COMPONENT_GCC_ARM = 0,
+            COMPONENT_MW_ABSTRACTION_RTOS = 0,
+            COMPONENT_MW_CAT1CM0P = 0,
+            COMPONENT_MW_CLIB_SUPPORT = 0,
+            COMPONENT_MW_CMSIS = 0,
+            COMPONENT_MW_CORE_LIB = 0,
+            COMPONENT_MW_CORE_MAKE = 0,
+            COMPONENT_MW_FREERTOS = 0,
+            COMPONENT_MW_MTB_HAL_CAT1 = 0,
+            COMPONENT_MW_MTB_PDL_CAT1 = 0,
+            COMPONENT_MW_RECIPE_MAKE_CAT1C = 0,
+            CORE_NAME_CM7_0 = 1,
+            CYBSP_WIFI_WL_REG_ON_GPIO_DRIVE_MODE = 'CYHAL_GPIO_DRIVE_PULLUP',
+            CYT4BB7CEE = 0,
+            CY_APPNAME_proj_cm7_0 = 0,
+            CY_SUPPORTS_DEVICE_VALIDATION = 0,
+            CY_TARGET_BOARD = 'CYT4BB7_Dual',
+            CY_USING_HAL = 0,
+            TARGET_CYT4BB7_Dual = 0
+        )
+        env.INCLUDES += [
+            cfg.srcnode.find_dir('libraries/AP_HAL_Infineon').abspath(),
+            cfg.srcnode.find_dir('libraries/AP_HAL_Infineon/src').abspath(),
+        ]
+
+        env.AP_LIBRARIES += [
+            'AP_HAL_Infineon',
+        ]
+        env.AP_LIBRARIES += [
+            'AP_HAL_Infineon',
+            'AP_HAL_Infineon/src',
+        ]
+
+        if cfg.env.SIM_ENABLED:
+            env.DEFINES.update(
+                AP_SIM_ENABLED = 1,
+            )
+            env.AP_LIBRARIES += [
+                'SITL',
+            ]
+        else:
+            env.DEFINES.update(
+                AP_SIM_ENABLED = 0,
+            )
+
+        ##what if Debug
+        if cfg.env.DEBUG:
+            env.ASFLAGS += [
+                '-g',
+                '-Os',
+            ]
+            env.CFLAGS += [
+                '-g',
+                '-Os',
+            ]
+            env.CXXFLAGS += [
+                '-g',
+                '-Os',
+            ]
+            env.LINKFLAGS += [
+                '-g',
+                '-Os',
+            ]
+            env.DEFINES.update(
+                COMPONENT_Debug = '1',
+                DEBUG = '1',
+            )
+        else:
+            env.ASFLAGS += [
+                '-O3',
+            ]
+            env.CFLAGS += [
+                '-O3',
+            ]
+            env.CXXFLAGS += [
+                '-O3',
+            ]
+            env.LINKFLAGS += [
+                '-O3',
+            ]
+
+        env.ASFLAGS += [
+            '-mcpu=cortex-m7',
+            '-mthumb',
+            '-MMD',
+            '-MP',
+            '-mfpu=fpv5-d16',
+            '-mfloat-abi=hard',
+            '--specs=nano.specs',
+            '-ffunction-sections',
+            '-fdata-sections',
+            '-ffat-lto-objects',
+            '-Wall',
+            '-pipe',
+            #'-flto',
+        ]
+
+        env.CFLAGS += [
+            '-mcpu=cortex-m7',
+            '-mthumb',
+            '-std=c99',
+            '-MMD',
+            '-MP',
+            '-mfpu=fpv5-d16',
+            '-mfloat-abi=hard',
+            '--specs=nano.specs',
+            '-ffunction-sections',
+            '-fdata-sections',
+            '-ffat-lto-objects',
+            '-Wall',
+            '-pipe',
+            #'-flto',
+            '-fomit-frame-pointer',
+            '-falign-functions=16',
+            '-fno-strict-aliasing',
+            '-fno-math-errno',
+        ]
+        env.CFLAGS.remove('-Werror=undef')
+
+        env.CXXFLAGS += [
+            '-mcpu=cortex-m7',
+            '-mthumb',
+            '-std=c++11',
+            '-MMD',
+            '-MP',
+            '-mfpu=fpv5-d16',
+            '-mfloat-abi=hard',
+            '--specs=nano.specs',
+            '-ffunction-sections',
+            '-fdata-sections',
+            '-ffat-lto-objects',
+            '-Wall',
+            '-pipe',
+            #'-flto',
+            '-fomit-frame-pointer',
+            '-falign-functions=16',
+            '-fno-strict-aliasing',
+            '-fno-math-errno',
+            '-fno-rtti',
+            '-fno-threadsafe-statics',
+        ]
+        env.CXXFLAGS.remove('-Werror=undef')
+        env.LINKFLAGS += [
+            '-mcpu=cortex-m7',
+            '-mthumb',
+            '-mfpu=fpv5-d16',
+            '-mfloat-abi=hard',
+            '--specs=nano.specs',
+            '-ffunction-sections',
+            '-fdata-sections',
+            '-ffat-lto-objects',
+            '-Wall',
+            '-pipe',
+            #'-flto',
+            '-Wl,-u,cy_m0p_image',
+            '-Wl,-u,_sbrk',
+            '-T./linker_d.ld',
+            '-Wl,--defsym=_CORE_CM7_0_=1',
+            '-Wl,--gc-sections',
+            #'-Wl,--no-gc-sections',
+            '-Wl,-Map,linker.map',
+        ]
+
+
+    def build(self, bld):
+        super(infineon, self).build(bld)
+        bld.load('infineon')
+        print('build infineon board')
+
+    def get_name(self):
+        return self.name
+

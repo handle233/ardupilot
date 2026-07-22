@@ -1,0 +1,234 @@
+{
+    "PERIPHERAL_CLOCK" : "Cy_SysClk_ClkHfGetFrequency(2)",
+    "BOARD" : "UluluDriveDayun",
+
+    "HAL_SERIAL_USB" : "HAL_SERIAL_0",
+    "UART" : [
+        [
+            {
+                "id" : 0,
+                "SCB": 0,
+                "tx" : [0,1],
+                "rx" : [0,0],
+                "baudrate" : 115200,
+                "DIVIDER" : 1
+            },
+            {
+                "DMA": [1,17],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_RX_TO_PDMA10",
+                "bufsize" : 1024,
+                "blocksize":64
+            },
+            {
+                "DMA": [1,16],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_TX_TO_PDMA10",
+                "bufsize" : 1024,
+                "blocksize":1
+            }
+        ],
+        [
+            {
+                "id" : 1,
+                "SCB": 5,
+                "tx" : [4,1],
+                "rx" : [4,0],
+                "baudrate" : 100000,
+                "DIVIDER" : 5
+            },
+            {
+                "DMA": [1,27],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_RX_TO_PDMA15",
+                "bufsize" : 1024,
+                "blocksize":64
+            },
+            {
+                "DMA": [1,26],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_TX_TO_PDMA15",
+                "bufsize" : 1024,
+                "blocksize":1
+            }
+        ],
+        [
+            {
+                "id" : 2,
+                "SCB": 4,
+                "tx" : [10,1],
+                "rx" : [10,0],
+                "baudrate" : 115200,
+                "DIVIDER" : 6
+            },
+            {
+                "DMA": [1,25],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_RX_TO_PDMA14",
+                "bufsize" : 1024,
+                "blocksize":64
+            },
+            {
+                "DMA": [1,24],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_TX_TO_PDMA14",
+                "bufsize" : 1024,
+                "blocksize":1
+            }
+        ],
+        [
+            {
+                "id" : 3,
+                "SCB": 3,
+                "tx" : [13,1],
+                "rx" : [13,0],
+                "baudrate" : 115200,
+                "DIVIDER" : 4
+            },
+            {
+                "DMA": [1,23],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_RX_TO_PDMA13",
+                "bufsize" : 1024,
+                "blocksize":64
+            },
+            {
+                "DMA": [1,22],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_TX_TO_PDMA13",
+                "bufsize" : 1024,
+                "blocksize":1
+            }
+        ],
+        [
+            {
+                "id" : 4,
+                "SCB": 9,
+                "tx" : [15,1],
+                "rx" : [15,0],
+                "baudrate" : 115200,
+                "DIVIDER" : 8
+            },
+            {
+                "DMA": [1,35],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_RX_TO_PDMA19",
+                "bufsize" : 1024,
+                "blocksize":64
+            },
+            {
+                "DMA": [1,34],
+                "trigger" : "TRIG_OUT_1TO1_2_SCB_TX_TO_PDMA19",
+                "bufsize" : 1024,
+                "blocksize":1
+            }
+        ]
+    ],
+    "I2C"  : [
+        [
+            {
+                "id"  : 0,
+                "SCB" : 2,
+                "SCL" : [19,2],
+                "SDA" : [19,1],
+                "DIVIDER" : 2
+            }
+        ]
+    ],
+    "SPI"  : [
+        [
+            {
+                "id"  : 0,
+                "SCB" : 6,
+                "CLK" : [3,2],
+                "MOSI": [3,1],
+                "MISO": [3,0],
+                "select" : [[3,3],[3,4]],
+                "DIVIDER" : 3,
+                "prediv": 10,
+                "mode" : 3
+            }
+        ],
+        [
+            {
+                "id"  : 1,
+                "SCB" : 8,
+                "CLK" : [12,2],
+                "MOSI": [12,1],
+                "MISO": [12,0],
+                "select" : [[12,3]],
+                "DIVIDER" : 7,
+                "prediv": 10,
+                "mode" : 3
+            }
+        ]
+    ],
+    "SPIDEV" : [
+        {
+            "Bus" : "SPI",
+            "name": "bmi088_a",
+            "busid" : 0,
+            "address" : 0
+        },
+        {
+            "Bus" : "SPI",
+            "name": "bmi088_g",
+            "busid" : 0,
+            "address" : 1
+        },
+        {
+            "Bus" : "SPI",
+            "name": "icm42688p",
+            "busid" : 1,
+            "address" : 0
+        }
+    ],
+    "IMU"  : [
+        {
+            "backend" : "AP_InertialSensor_BMI088",
+            "devices_name" : ["bmi088_a","bmi088_g"],
+            "rotation" : "ROTATION_ROLL_180_YAW_270"
+        }
+    ],
+    "Analog"  : [
+        {
+            "id" : 1,
+            "PIN": [6,1],
+            "ADC": 0,
+            "portaddr" : [1,0]
+        },
+        {
+            "id" : 2,
+            "PIN": [6,0],
+            "ADC": 0,
+            "portaddr" : [0,0]
+        }
+    ],
+    "HAL_BATT_MONITOR_DEFAULT" : 4,
+
+    "BATT_MONITOR" : 4,
+    "HAL_BATT_VOLT_PIN" : 1,
+    "HAL_BATT_VOLT_SCALE" : "11.0f",
+    
+    "HAL_BATT_CURR_PIN" : 2,
+    "HAL_BATT_CURR_SCALE" : "40.0f",
+    
+    "ANALOG_BAT_ID" : 1,
+    "AP_COMPASS_QMC5883P_ENABLED" : 1,
+    "HAL_MAG_PROBE_LIST" : "add_backend(DRIVER_QMC5883P, AP_Compass_QMC5883P::probe(GET_I2C_DEVICE(0,0x2c), false, ROTATION_YAW_90));RETURN_IF_NO_SPACE",
+    "HAL_BARO_PROBE_LIST" : "probe_i2c_dev(AP_Baro_SPL06::probe, 0, 0x77);RETURN_IF_NO_SPACE",
+
+    "PWM"  : [
+        {
+            "id"  : 0,
+            "num" : 9,
+            "PIN" : [5,0]
+        },
+        {
+            "id"  : 1,
+            "num" : 10,
+            "PIN" : [5,1]
+        },
+        {
+            "id"  : 2,
+            "num" : 11,
+            "PIN" : [5,2]
+        },
+        {
+            "id"  : 3,
+            "num" : 12,
+            "PIN" : [5,3]
+        }
+    ]
+}
