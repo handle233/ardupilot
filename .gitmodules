@@ -45,3 +45,30 @@
 [submodule "modules/littlefs"]
 	path = modules/littlefs
 	url = https://github.com/ArduPilot/littlefs.git
+[submodule "modules/infineon/abstraction-rtos"]
+	path = modules/infineon/abstraction-rtos
+	url = https://github.com/Infineon/abstraction-rtos.git
+[submodule "modules/infineon/cat1cm0p"]
+	path = modules/infineon/cat1cm0p
+	url = https://github.com/Infineon/cat1cm0p.git
+[submodule "modules/infineon/clib-support"]
+	path = modules/infineon/clib-support
+	url = https://github.com/Infineon/clib-support.git
+[submodule "modules/infineon/cmsis"]
+	path = modules/infineon/cmsis
+	url = https://github.com/Infineon/cmsis.git
+[submodule "modules/infineon/core-lib"]
+	path = modules/infineon/core-lib
+	url = https://github.com/Infineon/core-lib.git
+[submodule "modules/infineon/freertos"]
+	path = modules/infineon/freertos
+	url = https://github.com/Infineon/freertos.git
+[submodule "modules/infineon/mtb-hal-cat1"]
+	path = modules/infineon/mtb-hal-cat1
+	url = https://github.com/Infineon/mtb-hal-cat1.git
+[submodule "modules/infineon/mtb-pdl-cat1"]
+	path = modules/infineon/mtb-pdl-cat1
+	url = https://github.com/Infineon/mtb-pdl-cat1.git
+[submodule "modules/infineon/TARGET_CYT4BB7"]
+	path = modules/infineon/TARGET_CYT4BB7
+	url = https://github.com/handle233/TARGET_CYT4BB7.git
