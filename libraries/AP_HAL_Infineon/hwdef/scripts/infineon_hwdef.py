@@ -85,7 +85,7 @@ class HWDef:
         f.write('''
 //GPIO pin convert macro
 #define MAKE_PIN(port,num) ((uint8_t)(port<<3)|(num&0x7))
-#define MAKE_PORT(pin) ((GPIO_PRT_Type*) &GPIO_BASE->PRT[(pin>>3)])
+#define MAKE_PORT(pin) ((GPIO_PRT_Type*) &((GPIO_Type*)(GPIO_BASE))->PRT[(pin>>3)])
 #define MAKE_NUM(pin) ((uint8_t)pin&0x07)
 ''')
         f.write('''

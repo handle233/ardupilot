@@ -72,6 +72,7 @@ def configure(cfg):
             cfg.srcnode.find_dir('modules/infineon/mtb-hal-cat1/COMPONENT_CAT1C/include/triggers').abspath(),
         
             cfg.srcnode.find_dir('modules/infineon/mtb-pdl-cat1/devices/COMPONENT_CAT1C/include').abspath(),
+            cfg.srcnode.find_dir('modules/infineon/mtb-pdl-cat1/devices/COMPONENT_CAT1C/include/ip').abspath(),
             cfg.srcnode.find_dir('modules/infineon/mtb-pdl-cat1/drivers/include').abspath(),
             cfg.srcnode.find_dir('modules/infineon/mtb-pdl-cat1/drivers/third_party/ethernet/include').abspath(),
         ]
@@ -101,6 +102,7 @@ def configure(cfg):
             'modules/infineon/mtb-pdl-cat1/devices/COMPONENT_CAT1C/source/*.c',
             'modules/infineon/mtb-pdl-cat1/drivers/source/*.c',
             'modules/infineon/mtb-pdl-cat1/drivers/source/TOOLCHAIN_GCC_ARM/*.c',
+            'modules/infineon/mtb-pdl-cat1/drivers/source/TOOLCHAIN_GCC_ARM/*.S',
             'modules/infineon/mtb-pdl-cat1/utils/TOOLCHAIN_GCC_ARM/*.c',
             'modules/infineon/mtb-pdl-cat1/drivers/third_party/ethernet/src/*.c',
         ]

@@ -1754,6 +1754,10 @@ class infineon(Board):
             '-fno-strict-aliasing',
             '-fno-math-errno',
         ]
+        
+        env.CFLAGS += [
+            '-Wno-error=cast-align',
+        ]
         env.CFLAGS.remove('-Werror=undef')
 
         env.CXXFLAGS += [
