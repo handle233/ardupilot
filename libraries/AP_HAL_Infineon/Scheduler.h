@@ -3,8 +3,10 @@
 #include "AP_HAL_Infineon.h"
 #include "infineon.h"
 
-//bsp 中断优先级定义，数值越小优先级越高 不能超过7
-#define BSP_PRIORITY_BASE 3         //小于这个的优先级不受RTOS调度影响，适合时钟中断等需要高精度的中断
+// hardware interrupt priority, the lower the number, the higher the priority
+// freertos isr function SHOULD NOT be called from a lower priority BSP_PRIORITY_BASE
+// and priorities should never higher than 7
+#define BSP_PRIORITY_BASE 3         //prio less than it can't be schedule by RTOS
 #define BSP_PRIORITY_DMA            BSP_PRIORITY_BASE - 1
 #define BSP_PRIORITY_TICKTIMER      BSP_PRIORITY_BASE - 2
 #define BSP_PRIORITY_SPI1           BSP_PRIORITY_BASE + 0
@@ -14,7 +16,7 @@
 #define BSP_PRIORITY_I2C1           BSP_PRIORITY_BASE + 1
 #define BSP_PRIORITY_UART           BSP_PRIORITY_BASE + 0
 
-//rtos线程优先级定义，数值越大优先级越高
+//freertos task priority, the higher the number, the higher the priority
 #define RTOS_PRIORITY_STORAGE_PROCESS tskIDLE_PRIORITY+5
 #define RTOS_PRIORITY_ANALOG_PROCESS tskIDLE_PRIORITY+6
 #define RTOS_PRIORITY_I2C_PROCESS tskIDLE_PRIORITY+10
@@ -26,15 +28,16 @@
 #define RTOS_PRIORITY_STORAGE_BOOST tskIDLE_PRIORITY+11
 #define RTOS_PRIORITY_MAIN_BOOST tskIDLE_PRIORITY+15
 
-//NvicMux定义,决定中断向量的分配
+// NvicMux, it assign the interrupt source to the NVIC,
+// and the interrupt source is shared by multiple peripheral,
+// so we need to assign it to a specific peripheral
 #define NVIC_MUX_UART_DMA NvicMux2_IRQn
 #define NVIC_MUX_TICKTIMER NvicMux5_IRQn
 #define NVIC_MUX_DELAYTIMER NvicMux6_IRQn
 #define NVIC_MUX_I2C_INT NvicMux4_IRQn
 #define NVIC_MUX_SPI_INT NvicMux4_IRQn
 
-/* 注意检查，此处优先级定义不一定正确，参考具体实现 */
-
+/* here set the stack size for each process */
 #define MAX_PROCESS_NUM 8
 #define INFENION_STORAGE_PROCESS_STACK_SIZE (configMINIMAL_STACK_SIZE * 8)*2
 #define INFENION_TIMER_PROCESS_STACK_SIZE (configMINIMAL_STACK_SIZE * 8)*2
@@ -88,15 +91,15 @@ private:
     AP_HAL::Proc _timer_failsafe_proc;
     uint8_t _timer_proc_count;
     volatile bool _in_timer_Proc;
-    /*timer线程入口函数声明*/
+    /*timer entry*/
     static void timer_process(void *param);
     
     AP_HAL::MemberProc _io_proc[MAX_PROCESS_NUM];
     uint8_t _io_proc_count;
     volatile bool _in_io_Proc;
-    /*io线程入口函数声明*/
+    /*io entry*/
     static void io_process(void *param);
 
-    /*thread create 通用入口*/
+    /*thread create general entry*/
     static void thread_entry(void *param);
 };

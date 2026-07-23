@@ -1,5 +1,6 @@
 #include "infineon.h"
 
+// a useful function to init the clock for a peripheral, such as SCB, TCPWM, etc.
 cy_en_sysclk_status_t infineon_init_clock(
     en_clk_dst_t clk_dst,
     cy_en_divider_types_t div_num,
@@ -7,16 +8,15 @@ cy_en_sysclk_status_t infineon_init_clock(
     uint32_t divirate
 )
 {
-    //初始化时钟
     cy_en_sysclk_status_t clk_status;
-    /* 1) 先把这个 divider 关掉 */
+    /* 1) disable divider */
     clk_status = Cy_SysClk_PeriPclkDisableDivider(
         clk_dst,
         div_num,
         divider);
     CY_ASSERT(clk_status == CY_SYSCLK_SUCCESS);
 
-    /* 2) 设置 divider 值 */
+    /* 2) set divider value */
     clk_status = Cy_SysClk_PeriPclkSetDivider(
         clk_dst,
         div_num,
@@ -24,14 +24,14 @@ cy_en_sysclk_status_t infineon_init_clock(
         divirate);
     CY_ASSERT(clk_status == CY_SYSCLK_SUCCESS);
 
-    /* 3) 把这个 divider 分配给 SCB1 */
+    /* 3) assign the divider to peripheral */
     clk_status = Cy_SysClk_PeriPclkAssignDivider(
         clk_dst,
         div_num,
         divider);
     CY_ASSERT(clk_status == CY_SYSCLK_SUCCESS);
 
-    /* 4) 使能这个 divider */
+    /* 4) enable this divider */
     clk_status = Cy_SysClk_PeriPclkEnableDivider(
         clk_dst,
         div_num,

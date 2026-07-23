@@ -89,7 +89,7 @@ HAL_Infineon::HAL_Infineon() :
 
 void HAL_Infineon::run(int argc, char* const argv[], Callbacks* callbacks) const
 {
-    //现在这里初始化bsp
+    //here initialize the bsp.
     cy_rslt_t result;
     
     result = cybsp_init();
@@ -99,7 +99,7 @@ void HAL_Infineon::run(int argc, char* const argv[], Callbacks* callbacks) const
     __enable_irq();
 
     /*
-    * 初始化所有hal组件，之后调用callbacks->setup()，最后启动scheduler
+    * initial all hal component，call callbacks->setup()，then start scheduler
     */
     console->begin(DEFAULT_SERIAL0_BAUD);
 

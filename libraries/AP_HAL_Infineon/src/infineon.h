@@ -1,6 +1,6 @@
 #pragma once
 /*
-* bsp和HAL的对接文件，所有的访问必须过这个文件避免冲突
+* expose the PDL to HAL, only include this file to avoid conflict
 */
 #if defined (CY_USING_HAL)
 #include "cyhal.h"

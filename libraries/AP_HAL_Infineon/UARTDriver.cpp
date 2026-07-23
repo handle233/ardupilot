@@ -19,7 +19,7 @@ Infineon::UARTDriver::UARTDriver(infineon_uart_def_t & uart_info,cy_stc_dma_desc
 
 /* Infineon implementations of virtual methods */
 void Infineon::UARTDriver::_begin(uint32_t b, uint16_t rxS, uint16_t txS) {
-    //是否重复初始化
+    //re initialize?
     if(_initialized){
         if(b == 0)
         {
@@ -80,12 +80,12 @@ void Infineon::UARTDriver::_begin(uint32_t b, uint16_t rxS, uint16_t txS) {
         .txFifoIntEnableMask        = 0UL
     };
     
-    //初始化uart
+    //init uart peripheral
     cy_en_scb_uart_status_t status;
     status = Cy_SCB_UART_Init((CySCB_Type*)def_uart_info.scb, &uart_config, &uart_context);
     CY_ASSERT(status == CY_SCB_UART_SUCCESS);
 
-    //初始化时钟
+    //assign clock
     if(b == 0)
     {
         b = def_uart_info.baudrate;
@@ -98,13 +98,13 @@ void Infineon::UARTDriver::_begin(uint32_t b, uint16_t rxS, uint16_t txS) {
         def_uart_info.divider,
     dummy);
 
-    //启动
+    //Enable
     Cy_SCB_UART_Enable((CySCB_Type*)def_uart_info.scb);
 
-    //开启DMA
+    //bind DMA
     if(def_uart_info.dma != nullptr)
     {
-        //开启rx环形DMA
+        //bind rx DMA ring
         rx_dma_ring = new DMA_ring(def_uart_info.dma[0]->size, def_uart_info.dma[0]->block_size, 
             (void*)(&((CySCB_Type*)def_uart_info.scb)->RX_FIFO_RD), def_uart_info.dma[0]->buf);
         rx_dma_ring->init();
@@ -119,7 +119,7 @@ void Infineon::UARTDriver::_begin(uint32_t b, uint16_t rxS, uint16_t txS) {
         rx_dma_ring_buffer = new DMA_RingBuffer(def_uart_info.dma[0]->buf, def_uart_info.dma[0]->size);
         
 
-        //开启txDMA
+        //bind tx DMA
         cy_stc_dma_descriptor_config_t desc_cfg =
         {
             .retrigger       = CY_DMA_RETRIG_IM,
@@ -161,7 +161,8 @@ void Infineon::UARTDriver::_begin(uint32_t b, uint16_t rxS, uint16_t txS) {
         tx_dma_ring_buffer = new DMA_RingBuffer(def_uart_info.dma[1]->buf, def_uart_info.dma[1]->size);
         transfering = false;
     }else{
-        //remain to be done
+        // no DMA, use FIFO only
+        // remain to be done
     }
 
     _initialized = true;
@@ -228,7 +229,7 @@ size_t Infineon::UARTDriver::_write(const uint8_t *buffer, size_t size)
 {
     size_t total = 0;
     if(Cy_SCB_UART_GetNumInTxFifo((CySCB_Type*)def_uart_info.scb) < 64  && !transfering){
-        //直接写入FIFO
+        //direct into FIFO
         const size_t fifo_written = Cy_SCB_UART_PutArray((CySCB_Type*)def_uart_info.scb, (void*)buffer, size);
         buffer += fifo_written;
         size -= fifo_written;
@@ -260,6 +261,9 @@ ssize_t Infineon::UARTDriver::_read(uint8_t *buffer, uint16_t size)
 #if HAL_UART_STATS_ENABLED
 void Infineon::UARTDriver::uart_info(ExpandingString &str, StatsTracker &stats, const uint32_t dt_ms)
 {
+    /*
+    * update UART statistics for MAVFTP, remains to be done
+    */
     const uint32_t tx_bytes = stats.tx.update(_tx_stats_bytes);
     const uint32_t rx_bytes = stats.rx.update(_rx_stats_bytes);
 

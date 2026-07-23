@@ -100,7 +100,7 @@ int Infineon::DMA_Channel::init(){
     CY_ASSERT(dma_ret == CY_DMA_SUCCESS);
 
     /*
-     * 开 DMA channel 中断。
+     * turn on DMA channel.
      */
     Cy_DMA_Channel_SetInterruptMask(_dw, _channel_num, CY_DMA_INTR_MASK);
 
@@ -116,7 +116,7 @@ int Infineon::DMA_Channel::init(){
     NVIC_EnableIRQ((IRQn_Type)_mux);
 
     /*
-     * 连接 UART trigger 到 DMA channel trigger input。
+     * bind UART input signal to DMA channel trigger。
      */
     cy_en_trigmux_status_t trig_ret = Cy_TrigMux_Select(
         _trigger,

@@ -170,27 +170,27 @@ void Infineon::Storage::JudgeData(uint8_t sector, Header &A, Header &B, Header &
     DirtyBits[sector] = Dirty;
     
     if(Bcrc == A.crc[sector]){
-        //B记录匹配，写入第三步完成
+        //Match B record, write the third step
         memcpy(_FlashBuffer+sector*SECTOR_SIZE,(void*)(SECTOR_B_BASE+sector*SECTOR_SIZE),SECTOR_SIZE);
         Trust.crc[sector] = A.crc[sector];
         DirtyBits[sector] = Clean;
     }else if(Acrc == A.crc[sector]){
-        //A记录匹配，写入第二步完成
+        //Match A record, write the second step
         memcpy(_FlashBuffer+sector*SECTOR_SIZE,(void*)(SECTOR_A_BASE+sector*SECTOR_SIZE),SECTOR_SIZE);
         Trust.crc[sector] = A.crc[sector];
         DEV_PRINTF("found err 2 in page%d\n",sector);
     }else if(Acrc == B.crc[sector]){
-        //A记录匹配，只写入了第一步
+        //Match A record, write the first step
         memcpy(_FlashBuffer+sector*SECTOR_SIZE,(void*)(SECTOR_A_BASE+sector*SECTOR_SIZE),SECTOR_SIZE);
         Trust.crc[sector] = B.crc[sector];
         DEV_PRINTF("found err 1 in page%d\n",sector);
     }else if(Bcrc == B.crc[sector]){
-        //B记录匹配，不知道怎么回事
+        //Match only B record, what happened
         memcpy(_FlashBuffer+sector*SECTOR_SIZE,(void*)(SECTOR_B_BASE+sector*SECTOR_SIZE),SECTOR_SIZE);
         Trust.crc[sector] = B.crc[sector];
         DEV_PRINTF("found err 0 in page%d\n",sector);
     }else{
-        //丢数据
+        //data lost, clear the data
         DEV_PRINTF("found data losing in page%d\n",sector);
         memset(_FlashBuffer+sector*SECTOR_SIZE,0xFF,SECTOR_SIZE);
         CalculateCRC(&Trust.crc[sector],_FlashBuffer+sector*SECTOR_SIZE,SECTOR_SIZE);
@@ -199,16 +199,16 @@ void Infineon::Storage::JudgeData(uint8_t sector, Header &A, Header &B, Header &
 
 void Infineon::Storage::WriteData(uint8_t sector)
 {
-    //先行步骤，求解写入的crc
+    //precalculate CRC
     CalculateCRC(&ActiveHeaders.crc[sector],_FlashBuffer + sector*SECTOR_SIZE,SECTOR_SIZE);
-    //第一步，更新header A
+    //step1, write header A
     WriteHead(HEADER_A_BASE);
-    //第二步，写入Asector
+    //step2, write A sector
     memcpy(WriteBuffer,_FlashBuffer + sector*SECTOR_SIZE,SECTOR_SIZE);
     WriteSector(SECTOR_A_BASE + sector * SECTOR_SIZE);
-    //第三步，写入Bsector
+    //step3, write B sector
     WriteSector(SECTOR_B_BASE + sector * SECTOR_SIZE);
-    //第四步，更新header B
+    //step4, write header B
     WriteHead(HEADER_B_BASE);
     DirtyBits[sector] = Clean;
 }

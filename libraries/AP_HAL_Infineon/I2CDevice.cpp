@@ -41,7 +41,8 @@ bool I2CBus::init(){
     Cy_SCB_I2C_Init((CySCB_Type*)_i2c_info.scb, &scb_8_config, &i2cContext);
 
     infineon_init_clock((en_clk_dst_t)_i2c_info.clk_dst, CY_SYSCLK_DIV_8_BIT,
-     _i2c_info.divider, 50);//初始化默认为100k，之后调用setspeed设置
+     _i2c_info.divider, 50);
+     //set i2c speed to 100k as default, then call setspeed to set
     
     cy_stc_sysint_t uart_intr_config = {
         .intrSrc = (((uint32_t)NVIC_MUX_I2C_INT << CY_SYSINT_INTRSRC_MUXIRQ_SHIFT) | \
@@ -60,7 +61,7 @@ bool I2CBus::init(){
     NVIC_ClearPendingIRQ(NVIC_MUX_I2C_INT);
     NVIC_EnableIRQ(NVIC_MUX_I2C_INT);
 
-    //启动
+    //Enable
     Cy_SCB_I2C_Enable((CySCB_Type*)_i2c_info.scb);
 
     
@@ -97,7 +98,7 @@ bool Infineon::I2CBus::transfer(uint8_t address,
         transfer.slaveAddress = address;
         transfer.buffer = (uint8_t *)send;
         transfer.bufferSize = send_len;
-        transfer.xferPending = recv_len > 0; //如果还有接收数据则发送后不发送stop
+        transfer.xferPending = recv_len > 0; //if we have recv, then we need to keep the bus alive for the next transfer
         
         while(isr_signal.wait_nonblocking());
         if(CY_SCB_I2C_SUCCESS != Cy_SCB_I2C_MasterWrite((CySCB_Type*)_i2c_info.scb,&transfer,&i2cContext)) {
@@ -181,7 +182,7 @@ void Infineon::I2CBus::periodic_process(void* pthis)
             continue;
         }
 
-        //执行periodic
+        //periodic
         for (uint8_t i = 0; i < cb_count; i++) {
             PeriodicSlot &slot = pbus->periodic_cb[i];
 
@@ -194,7 +195,7 @@ void Infineon::I2CBus::periodic_process(void* pthis)
                 pbus->bus_lock.give();
             }
         }
-        //查找下一个执行点
+        //seek for next execute.
         now = AP_HAL::micros64();
         for (uint8_t i = 0; i < cb_count; i++) {
             PeriodicSlot &slot = pbus->periodic_cb[i];

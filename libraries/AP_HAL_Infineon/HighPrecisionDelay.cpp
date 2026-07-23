@@ -23,7 +23,7 @@ DelayTimer::DelayTimer() :
 
 void DelayTimer::init()
 {
-    //开启高精度delay
+    //turn on a TCPWM counter as a timer
     Cy_SysClk_PeriPclkAssignDivider(
         PCLK_TCPWM0_CLOCKS1,
         CY_SYSCLK_DIV_8_BIT,
@@ -43,7 +43,7 @@ void DelayTimer::init()
     Cy_TCPWM_Counter_Init(TCPWM0, 1, &counter1);
     Cy_TCPWM_Counter_Enable(TCPWM0, 1);
 
-    //配中断
+    //turn on interrupt
     cy_stc_sysint_t irqCfg2 = {
         .intrSrc = (NVIC_MUX_DELAYTIMER << CY_SYSINT_INTRSRC_MUXIRQ_SHIFT)|tcpwm_0_interrupts_1_IRQn,
         .intrPriority = BSP_PRIORITY_DELAYTIMER

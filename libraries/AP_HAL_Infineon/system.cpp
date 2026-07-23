@@ -59,7 +59,7 @@ namespace AP_HAL{
 
 extern "C" void runtime_stats_timer_init(void)
 {
-    // 如果你的 micros64/TCPWM 已经在系统初始化时启动了，这里可以为空
+    // remains to be empty, there no necessary to init timer anymore.
 }
 
 extern "C" uint32_t runtime_stats_get_counter(void)

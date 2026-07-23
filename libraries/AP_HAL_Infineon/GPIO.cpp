@@ -16,9 +16,9 @@ void GPIO::init()
 void GPIO::pinMode(uint8_t pin, uint8_t output)
 {
     cy_stc_gpio_pin_config_t led_config = {
-        .outVal = 0,                  // 初始输出（0=灭，1=亮，看板子）
-        .driveMode = CY_GPIO_DM_HIGHZ, // 强推挽输出
-        .hsiom = HSIOM_SEL_GPIO,     // 选择GPIO功能
+        .outVal = 0,                  // initial value (0=off, 1=on, depending on the board)
+        .driveMode = CY_GPIO_DM_HIGHZ, // high resistance output
+        .hsiom = HSIOM_SEL_GPIO,     // select GPIO function
         .intEdge = CY_GPIO_INTR_DISABLE,
         .intMask = 0,
         .vtrip = CY_GPIO_VTRIP_CMOS,
@@ -28,10 +28,10 @@ void GPIO::pinMode(uint8_t pin, uint8_t output)
 
     switch(output){
         case HAL_GPIO_INPUT:
-            led_config.driveMode = CY_GPIO_DM_PULLUP;
+            led_config.driveMode = CY_GPIO_DM_PULLUP;// input with pull-up
         break;
         case HAL_GPIO_OUTPUT:
-            led_config.driveMode = CY_GPIO_DM_STRONG_IN_OFF;
+            led_config.driveMode = CY_GPIO_DM_STRONG_IN_OFF;// strong output
         break;
         default:
         break;
@@ -52,7 +52,7 @@ void GPIO::write(uint8_t pin, uint8_t value)
 
 void GPIO::toggle(uint8_t pin)
 {
-    Cy_GPIO_Inv(MAKE_PORT(pin), MAKE_NUM(pin));  // 翻转LED
+    Cy_GPIO_Inv(MAKE_PORT(pin), MAKE_NUM(pin));  // toggle LED
 }
 
 /* Alternative interface: */

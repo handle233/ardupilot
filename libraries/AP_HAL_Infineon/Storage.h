@@ -60,25 +60,28 @@ private:
     constexpr static uint8_t sector_num = HAL_STORAGE_SIZE/SECTOR_SIZE;
 
     /*
-    * 读取文件头，仲裁恢复完整数据块到FlashBuffer
+    * read the header and judge the data, then write the correct data to FlashBuffer
     */
     void RecoverData();
     /*
-    * 复制Head到结构体里面
+    * Copy Head in flash to RAM
     */
     void ReadHead(Header &headA,Header &headB);
+    /*
+    * Write Head in RAM to flash
+    */
     void WriteHead(uint32_t headaddr);
     /*
-    * 仲裁数据块，刷新块的DirtyBit，并写入数据到FlashBuffer（如果可用）
-    * 传入的是块index，不是地址
+    * judge all the sector, flush the dirty bits, apply data to Buffer (if available)
+    * the arg sector is the sector index, not the real address
     */
     void JudgeData(uint8_t sector, Header &A, Header &B, Header &Trust);
     /*
-    * 使用四步写入法正确写入
+    * correct apply data to flash
     */
     void WriteData(uint8_t sector);
 
-//基础函数
+//basic function
     void WriteSector(uint32_t addr);
     void ClearWriteBuf(){ memset(WriteBuffer,0xFF,sizeof(WriteBuffer));}
     bool CalculateCRC(uint32_t *crc, void *src, size_t n);

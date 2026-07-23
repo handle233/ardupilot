@@ -30,7 +30,8 @@ void Util::uart_info(ExpandingString &str){
     const uint32_t dt_ms = now_ms - sys_uart_stats.last_ms;
     sys_uart_stats.last_ms = now_ms;
 
-    // Mission Planner / MAVFTP 识别这个头
+    // Mission Planner / MAVFTP 
+    // remains to be done, but this is a good start
     str.printf("UARTV1\n");
 
     for (uint8_t i = 0; i < HAL_UART_NUM_SERIAL_PORTS; i++) {

@@ -19,25 +19,13 @@ public:
     void     cork(void) override;
     void     push(void) override;
 private:
-/*UART 驱动方案*/
-    constexpr static uint8_t max_channels = 4;
-    cy_stc_scb_uart_context_t uart_context;
-    constexpr static uint32_t min_period = 1000;
-    constexpr static uint32_t theory_max_duty = 10000;
-    constexpr static uint32_t theory_max_clock = 1000000;
+    constexpr static uint8_t max_channels = RCOUT_NUM;
+    constexpr static uint32_t max_freq = 1000,
+        min_freq = 20;
+    constexpr static uint32_t pwm_clock = 1000000;
     struct channel_state {
-        uint16_t set_duty;
-        uint16_t max_duty;
+        uint16_t period;
+        uint16_t counter;
     }channel_states[max_channels];
-
-/*PWM驱动方案*/
-    // constexpr static uint8_t max_channels = RCOUT_NUM;
-    // constexpr static uint32_t max_freq = 1000,
-    //     min_freq = 20;
-    // constexpr static uint32_t pwm_clock = 1000000;
-    // struct channel_state {
-    //     uint16_t period;
-    //     uint16_t counter;
-    // }channel_states[max_channels];
-    // bool flush = true;
+    bool flush = true;
 };

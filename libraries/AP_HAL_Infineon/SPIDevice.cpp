@@ -82,7 +82,7 @@ bool Infineon::SPIBus::init()
     infineon_init_clock((en_clk_dst_t)_spi_info.clk_dst, CY_SYSCLK_DIV_8_BIT,
                         _spi_info.divider, 0);
 
-    //启动
+    //enable
     Cy_SCB_SPI_Enable((CySCB_Type*)_spi_info.scb);
 
     const BaseType_t task_created = xTaskCreate(periodic_process,
@@ -157,6 +157,11 @@ void Infineon::SPIBus::spi_isr()
     Cy_SCB_SPI_Interrupt((CySCB_Type*)_spi_info.scb, &spiContext);
 }
 
+/*
+* interrupt drived SPI communication is implemented,
+* but it is not used in the current version, 
+* because the implement now is more efficient and simple
+*/
 void Infineon::SPIBus::spi_event_isr(uint32_t events)
 {
     _event = events;
@@ -211,7 +216,7 @@ void Infineon::SPIBus::periodic_process(void* pdata)
         uint64_t now = AP_HAL::micros64();
         uint64_t nearest = 0;
         const uint8_t cb_count = pthis->periodic_cb_count;
-        //执行periodic
+        //do periodic process
         for (uint8_t i = 0; i < cb_count; i++) {
             PeriodicSlot &slot = pthis->periodic_cb[i];
             if (now >= slot.next_usec) {
@@ -223,7 +228,7 @@ void Infineon::SPIBus::periodic_process(void* pdata)
                 pthis->bus_lock.give();
             }
         }
-        //查找下一个执行点
+        //seek for next execute.
         now = AP_HAL::micros64();
         for (uint8_t i = 0; i < cb_count; i++) {
             PeriodicSlot &slot = pthis->periodic_cb[i];

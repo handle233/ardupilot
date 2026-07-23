@@ -18,7 +18,7 @@ void tick_isr(void){
 DelayTimer tim;
 
 void Scheduler::init(){
-    //初始化tick时钟
+    //initial tick clock
     infineon_init_clock(PCLK_TCPWM0_CLOCKS512, CY_SYSCLK_DIV_8_BIT, 0, 99);
 
     cy_stc_tcpwm_counter_config_t counter0 =
@@ -37,7 +37,7 @@ void Scheduler::init(){
     Cy_TCPWM_Counter_Init(TCPWM0, 512, &counter0);
     Cy_TCPWM_Counter_Enable(TCPWM0, 512);
 
-    //配中断
+    //assign interrupt
     cy_stc_sysint_t irqCfg =
     {
         .intrSrc = (NVIC_MUX_TICKTIMER << CY_SYSINT_INTRSRC_MUXIRQ_SHIFT)|tcpwm_0_interrupts_512_IRQn,
@@ -53,13 +53,13 @@ void Scheduler::init(){
 
     tim.init();
 
-    //开启DWT计数器
+    //turn on DWT counter for microsecond delay
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
-    //开启 timer/IO 线程
+    //create timer/IO thread
     TaskHandle_t timer_task = xTaskCreateStatic(Scheduler::timer_process,
         "Timer Process",
         INFENION_TIMER_PROCESS_STACK_SIZE,
@@ -122,6 +122,10 @@ void Scheduler::delay_microseconds_boost(uint16_t us) {
     if(in_main_thread()){
         vTaskPrioritySet(xTaskGetCurrentTaskHandle(),RTOS_PRIORITY_MAIN_BOOST);
     }else{
+        // the boost for other thread do have implement,
+        // but it is not necessary, because the main thread is the only one
+        // that needs to be boosted for timing critical operations.
+
         // int i=0;
         // for(i=0;i<max_boost;i++){
         //     if(slot[i].task==nullptr){
@@ -141,7 +145,7 @@ void Scheduler::delay_microseconds_boost(uint16_t us) {
 }
 
 void Scheduler::register_timer_process(AP_HAL::MemberProc proc){
-    //检查重复
+    //check repeatition
     for(uint8_t i = 0; i < _timer_proc_count; i++) {
         if (_timer_proc[i] == proc) {
             DEV_PRINTF("Timer process already registered\n");
@@ -149,7 +153,7 @@ void Scheduler::register_timer_process(AP_HAL::MemberProc proc){
         }
     }
 
-    //没有重复且任务数量没溢出就添加
+    //add it
     if(_timer_proc_count < MAX_PROCESS_NUM) {
         _timer_proc[_timer_proc_count] = proc;
         _timer_proc_count++;
@@ -163,7 +167,7 @@ void Scheduler::register_timer_failsafe(AP_HAL::Proc proc, uint32_t period_us){
 }
 
 void Scheduler::register_io_process(AP_HAL::MemberProc proc) {
-    //检查重复
+    //check repeatition
     for(uint8_t i = 0; i < _io_proc_count; i++) {
         if (_io_proc[i] == proc) {
             DEV_PRINTF("IO process already registered\n");
@@ -171,7 +175,7 @@ void Scheduler::register_io_process(AP_HAL::MemberProc proc) {
         }
     }
 
-    //没有重复且任务数量没溢出就添加
+    //add it
     if(_io_proc_count < MAX_PROCESS_NUM) {
         _io_proc[_io_proc_count] = proc;
         _io_proc_count++;
@@ -185,6 +189,8 @@ void Infineon::Scheduler::boost_end(void)
     if(in_main_thread()){
         vTaskPrioritySet(xTaskGetCurrentTaskHandle(),RTOS_PRIORITY_MAIN);
     }else{
+        // see the comment in delay_microseconds_boost() for why this is not implemented
+
         // TaskHandle_t _task = xTaskGetCurrentTaskHandle();
         // for(int i=0;i<max_boost;i++){
         //     if(slot[i].task==_task){
@@ -258,7 +264,8 @@ void Scheduler::reboot(bool hold_in_bootloader){ NVIC_SystemReset(); }
 
 bool Scheduler::thread_create(AP_HAL::MemberProc proc, const char *name,
  uint32_t stack_size, priority_base base, int8_t priority){
-    //优先级映射
+    // priority cast, a temporary solution,
+    // the priority design now still need improvement
     UBaseType_t task_priority;
     switch (base) {
         case PRIORITY_BOOST:
@@ -290,7 +297,7 @@ bool Scheduler::thread_create(AP_HAL::MemberProc proc, const char *name,
             task_priority = RTOS_PRIORITY_STORAGE_PROCESS + priority;
             break;
         default:
-            return false; // 无效的优先级基准
+            return false; // unclear priority base, return false to indicate failure
     }
 
     AP_HAL::MemberProc *tproc = (AP_HAL::MemberProc *)malloc(sizeof(proc));
@@ -307,7 +314,7 @@ bool Scheduler::thread_create(AP_HAL::MemberProc proc, const char *name,
         CY_ASSERT(ret == pdPASS);
         return false;
     }
-    return new_task != nullptr; // 返回线程创建是否成功
+    return new_task != nullptr; // return if the task was created successfully
 }
 
 void Infineon::Scheduler::thread_entry(void *param)
@@ -316,5 +323,5 @@ void Infineon::Scheduler::thread_entry(void *param)
     free(param);
     proc();
 
-    vTaskDelete(nullptr); // 线程执行完毕后自删除
+    vTaskDelete(nullptr);
 }
