@@ -133,5 +133,7 @@ def generate_hwdef(env):
 
 def build(bld):
     print('infineon build')
+
+    board_name = bld.env.BOARD
         
-    shutil.copy('modules/infineon/TARGET_CYT4BB7/COMPONENT_CM7/TOOLCHAIN_GCC_ARM/linker_d.ld','build/CYT4BB7/')
+    shutil.copy('modules/infineon/TARGET_CYT4BB7/COMPONENT_CM7/TOOLCHAIN_GCC_ARM/linker_d.ld','build/' + board_name + '/')

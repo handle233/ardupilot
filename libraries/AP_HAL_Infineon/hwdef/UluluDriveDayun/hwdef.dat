@@ -1,6 +1,7 @@
 {
     "PERIPHERAL_CLOCK" : "Cy_SysClk_ClkHfGetFrequency(2)",
     "BOARD" : "UluluDriveDayun",
+    "MCU"   : "CYT4BB7CXE",
 
     "HAL_SERIAL_USB" : "HAL_SERIAL_0",
     "UART" : [
